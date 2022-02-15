@@ -32,23 +32,6 @@ full_data <- pf_final %>%
 
 ```
 
-```{r order variables}
-full_data <- full_data %>%
-  mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
-                   textualRating == "FALSE" ~"False", 
-                   textualRating == "Mostly True" ~ "Mostly True", 
-                   textualRating == "Half True" ~ "Half True", 
-                   textualRating == "Mostly False" ~ "Mostly False", 
-                   textualRating == "Pants on Fire" ~ "Pants on Fire"))
-full_data$textualRating <- factor(full_data$textualRating,
-                                 levels = c("True", 
-                                            "Mostly True", 
-                                            "Half True", 
-                                            "Mostly False", 
-                                            "False", 
-                                            "Pants on Fire"))
-```
-
 ```{r narrow to relevant variables}
 narrowed_full_data <- full_data %>%
   select(url, title, reviewDate, text, claimDate, claimant_canonical_name, claimant_party, textualRating, `T/F RQ1`, claimYear:`Media and Communications`)
@@ -71,7 +54,7 @@ narrowed_full_data$textualRating <- factor(narrowed_full_data$textualRating,
 ```
 
 ``` {r rating by party,  warning=FALSE, message= FALSE}
-ggplot(pf_final, aes(x = textualRating, fill = claimant_party)) + 
+ggplot(narrowed_full_data, aes(x = textualRating, fill = claimant_party)) + 
  geom_bar(position = "fill") + 
   scale_fill_manual( values = c("blue2", "red3")) + 
   labs(title = "Ratings level by Party",
