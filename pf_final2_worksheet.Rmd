@@ -1,0 +1,77 @@
+---
+title: "Untitled"
+author: "Grace Abels"
+date: "2/15/2022"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+```
+
+```{r load data, warning=FALSE, message= FALSE}
+pf_final <- read_csv("pf_final.csv")
+tagged_claims <- read_csv("tagged_claims_for_join.csv")
+```
+
+```{r join data}
+pf_final %>%
+  left_join(airports, by = c("dest" = "faa")))
+
+```
+
+pf_final <- pf_final %>%
+  mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
+                   textualRating == "FALSE" ~"False", 
+                   textualRating == "Mostly True" ~ "Mostly True", 
+                   textualRating == "Half True" ~ "Half True", 
+                   textualRating == "Mostly False" ~ "Mostly False", 
+                   textualRating == "Pants on Fire" ~ "Pants on Fire"))
+pf_final$textualRating <- factor(pf_final$textualRating,
+                                 levels = c("True", 
+                                            "Mostly True", 
+                                            "Half True", 
+                                            "Mostly False", 
+                                            "False", 
+                                            "Pants on Fire"))
+
+
+{r rating by party,  warning=FALSE, message= FALSE}
+#ggplot(pf_final, aes(x = ratingsimp, fill = claimant_party)) + 
+ # geom_bar(position = "fill") + 
+  #scale_fill_manual( values = c("blue2", "red3")) + 
+  #labs(title = "Ratings level by Party",
+       #x = "Rating", 
+       #y = "Proportion", 
+       #fill = "Party of claimant")
+
+
+{r party by rating,  warning=FALSE, message= FALSE}
+ggplot(pf_final, aes(x = claimant_party, fill = textualRating)) + 
+         geom_bar(position = "fill") + 
+  scale_fill_manual( values = c("#1a9850",
+                                "#91cf60",
+                                "#d9ef8b", 
+                                "#fee08b", 
+                                "#fc8d59", 
+                                "#d73027")) +
+  labs(title = "Percentage Rating by Party", 
+       x = "Claims by Party", 
+       fill = "Rating", y = "Percentage" )
+
+
+{r table,  warning=FALSE, message= FALSE}
+pf_final %>%
+  count(claimant_party, textualRating) %>%
+  pivot_wider(id_cols = c(claimant_party, 
+                          textualRating),
+              names_from = textualRating,
+              values_from = n,
+              values_fill = 0) %>% 
+  kable()
+
+
