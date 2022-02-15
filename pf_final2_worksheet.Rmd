@@ -19,36 +19,70 @@ tagged_claims <- read_csv("tagged_claims_for_join.csv")
 ```
 
 ```{r join data}
-pf_final %>%
-  left_join(airports, by = c("dest" = "faa")))
+full_data <- pf_final %>%
+  left_join(tagged_claims, by = c("text" = "text",
+                                  "title" = "title",
+                                  "claimant_party" = "claimant_party",
+                                  "url" = "url",
+                                  "textualRating" = "textualRating",
+                                  "ratingsimp" = "ratingsimp",
+                                  "T/F RQ1" = "T/F RQ1",
+                                  "claimant_canonical_name" = 
+                                    "claimant_canonical_name"))
 
 ```
 
-pf_final <- pf_final %>%
+```{r order variables}
+full_data <- full_data %>%
   mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
                    textualRating == "FALSE" ~"False", 
                    textualRating == "Mostly True" ~ "Mostly True", 
                    textualRating == "Half True" ~ "Half True", 
                    textualRating == "Mostly False" ~ "Mostly False", 
                    textualRating == "Pants on Fire" ~ "Pants on Fire"))
-pf_final$textualRating <- factor(pf_final$textualRating,
+full_data$textualRating <- factor(full_data$textualRating,
                                  levels = c("True", 
                                             "Mostly True", 
                                             "Half True", 
                                             "Mostly False", 
                                             "False", 
                                             "Pants on Fire"))
+```
 
+```{r narrow to relevant variables}
+narrowed_full_data <- full_data %>%
+  select(url, title, reviewDate, text, claimDate, claimant_canonical_name, claimant_party, textualRating, `T/F RQ1`, claimYear:`Media and Communications`)
+```
+```{r}
+narrowed_full_data <- narrowed_full_data %>%
+  mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
+                   textualRating == "FALSE" ~"False", 
+                   textualRating == "Mostly True" ~ "Mostly True", 
+                   textualRating == "Half True" ~ "Half True", 
+                   textualRating == "Mostly False" ~ "Mostly False", 
+                   textualRating == "Pants on Fire" ~ "Pants on Fire"))
+narrowed_full_data$textualRating <- factor(narrowed_full_data$textualRating,
+                                 levels = c("True", 
+                                            "Mostly True", 
+                                            "Half True", 
+                                            "Mostly False", 
+                                            "False", 
+                                            "Pants on Fire"))
+```
 
-{r rating by party,  warning=FALSE, message= FALSE}
-#ggplot(pf_final, aes(x = ratingsimp, fill = claimant_party)) + 
- # geom_bar(position = "fill") + 
-  #scale_fill_manual( values = c("blue2", "red3")) + 
-  #labs(title = "Ratings level by Party",
-       #x = "Rating", 
-       #y = "Proportion", 
-       #fill = "Party of claimant")
+``` {r rating by party,  warning=FALSE, message= FALSE}
+ggplot(pf_final, aes(x = textualRating, fill = claimant_party)) + 
+ geom_bar(position = "fill") + 
+  scale_fill_manual( values = c("blue2", "red3")) + 
+  labs(title = "Ratings level by Party",
+       x = "Rating", 
+       y = "Proportion", 
+       fill = "Party of claimant")
+```
 
+```{r}
+
+```
 
 {r party by rating,  warning=FALSE, message= FALSE}
 ggplot(pf_final, aes(x = claimant_party, fill = textualRating)) + 
