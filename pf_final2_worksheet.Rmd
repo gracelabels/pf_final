@@ -54,7 +54,7 @@ clean_full_data$textualRating <- factor(clean_full_data$textualRating,
 ```
 
 ```{r}
-write.csv(clean_full_data, 'TF_tagged_PF', row.names = FALSE)
+write.csv(clean_full_data, 'TF_tagged_PF.csv', row.names = FALSE)
 ```
 
 
