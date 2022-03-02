@@ -1,0 +1,32 @@
+---
+title: "Plots"
+author: "Grace Abels"
+date: "2/23/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(knitr)
+```
+
+```{r}
+megadata <- read_csv("megadata.csv")
+```
+
+```{r}
+megadata %>%
+  filter(Legislation == TRUE) %>%
+  mutate(party = ifelse(claimant_party == "Republican", 
+                        "Republican", 
+                        "Democratic")) %>%
+  count(party) %>%
+  kable(caption = "Lies about Legislation by Party")
+```
+
