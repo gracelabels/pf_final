@@ -59,13 +59,13 @@ write.csv(clean_full_data, 'TF_tagged_PF.csv', row.names = FALSE)
 
 
 ``` {r rating by party,  warning=FALSE, message= FALSE}
-#ggplot(clean_full_data, aes(x = textualRating, fill = claimant_party)) + 
- #geom_bar(position = "fill") + 
-  #scale_fill_manual( values = c("blue2", "red3")) + 
-  #labs(title = "Ratings level by Party",
-       #x = "Rating", 
-       #y = "Proportion", 
-       #fill = "Party of claimant")
+ggplot(clean_full_data, aes(x = textualRating, fill = claimant_party)) + 
+ geom_bar(position = "fill") + 
+  scale_fill_manual( values = c("blue2", "red3")) + 
+  labs(title = "Ratings level by Party",
+       x = "Rating", 
+       y = "Proportion", 
+       fill = "Party of claimant")
 ```
 
 ```{r}

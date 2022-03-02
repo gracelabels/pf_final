@@ -2,8 +2,10 @@
 title: "Plots"
 author: "Grace Abels"
 date: "2/23/2022"
-output: html_document
-editor_options: 
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 
@@ -18,6 +20,56 @@ library(knitr)
 
 ```{r}
 megadata <- read_csv("megadata.csv")
+```
+```{r}
+clean_megadata<- megadata %>%
+  mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
+                   textualRating == "FALSE" ~"False", 
+                   textualRating == "Mostly True" ~ "Mostly True", 
+                   textualRating == "Half True" ~ "Half True", 
+                   textualRating == "Mostly False" ~ "Mostly False", 
+                   textualRating == "Pants on Fire" ~ "Pants on Fire"))
+clean_megadata$textualRating <- factor(clean_megadata$textualRating,
+                                 levels = c("True", 
+                                            "Mostly True", 
+                                            "Half True", 
+                                            "Mostly False", 
+                                            "False", 
+                                            "Pants on Fire"))
+```
+
+```{r}
+ggplot(clean_megadata, aes(x = textualRating, fill = claimant_party)) + 
+ geom_bar(position = "fill") + 
+  scale_fill_manual( values = c("blue2", "red3")) + 
+  labs(title = "Ratings level by Party",
+       x = "Rating", 
+       y = "Proportion", 
+       fill = "Party of claimant")
+```
+
+```{r party by rating,  warning=FALSE, message= FALSE}
+ggplot(clean_megadata, aes(x = claimant_party, fill = textualRating)) + 
+         geom_bar(position = "fill") + 
+  scale_fill_manual( values = c("#1a9850",
+                                "#91cf60",
+                                "#d9ef8b", 
+                                "#fee08b", 
+                                "#fc8d59", 
+                                "#d73027")) +
+  labs(title = "Percentage Rating by Party", 
+       x = "Claims by Party", 
+       fill = "Rating", y = "Percentage" )
+
+
+clean_megadata %>%
+  count(claimant_party, textualRating) %>%
+  pivot_wider(id_cols = c(claimant_party, 
+                          textualRating),
+              names_from = textualRating,
+              values_from = n,
+              values_fill = 0) %>% 
+  kable()
 ```
 
 ```{r}
