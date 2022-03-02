@@ -9,19 +9,19 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message= FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r packages, echo= FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(knitr)
 ```
 
-```{r}
+```{r load data, echo=FALSE, message=FALSE, warning=FALSE}
 megadata <- read_csv("megadata.csv")
 ```
-```{r}
+```{r clean textual and order, echo=FALSE}
 clean_megadata<- megadata %>%
   mutate(textualRating = case_when(textualRating == "TRUE" ~ "True", 
                    textualRating == "FALSE" ~"False", 
@@ -38,7 +38,7 @@ clean_megadata$textualRating <- factor(clean_megadata$textualRating,
                                             "Pants on Fire"))
 ```
 
-```{r}
+```{r rating by party, echo = FALSE}
 ggplot(clean_megadata, aes(x = textualRating, fill = claimant_party)) + 
  geom_bar(position = "fill") + 
   scale_fill_manual( values = c("blue2", "red3")) + 
@@ -48,7 +48,7 @@ ggplot(clean_megadata, aes(x = textualRating, fill = claimant_party)) +
        fill = "Party of claimant")
 ```
 
-```{r party by rating,  warning=FALSE, message= FALSE}
+```{r party by rating,  warning=FALSE, message= FALSE, echo=FALSE}
 ggplot(clean_megadata, aes(x = claimant_party, fill = textualRating)) + 
          geom_bar(position = "fill") + 
   scale_fill_manual( values = c("#1a9850",
@@ -62,6 +62,8 @@ ggplot(clean_megadata, aes(x = claimant_party, fill = textualRating)) +
        fill = "Rating", y = "Percentage" )
 
 
+```
+```{r table rating by party, echo=FALSE}
 clean_megadata %>%
   count(claimant_party, textualRating) %>%
   pivot_wider(id_cols = c(claimant_party, 
@@ -69,16 +71,47 @@ clean_megadata %>%
               names_from = textualRating,
               values_from = n,
               values_fill = 0) %>% 
-  kable()
+  kable(caption = "Fact-checks per rating by PArty")
 ```
 
-```{r}
-megadata %>%
+
+```{r macro table, echo=FALSE}
+legis_tibble <- megadata %>%
   filter(Legislation == TRUE) %>%
   mutate(party = ifelse(claimant_party == "Republican", 
                         "Republican", 
                         "Democratic")) %>%
-  count(party) %>%
-  kable(caption = "Lies about Legislation by Party")
+  group_by(party) %>%
+  summarise(Legislation = n())
+
+fear_tibble <- megadata %>%
+  filter(Fear == TRUE) %>%
+  mutate(party = ifelse(claimant_party == "Republican", 
+                        "Republican", 
+                        "Democratic")) %>%
+  group_by(party) %>%
+  summarise(Fear = n())
+opp_tibble <- megadata %>%
+  filter(`Opponent/Opponent's Record` == TRUE) %>%
+  mutate(party = ifelse(claimant_party == "Republican", 
+                        "Republican", 
+                        "Democratic")) %>%
+  group_by(party) %>%
+  summarise(`Opponent/Opponent's Record` = n())
+
+self_tibble <- megadata %>%
+  filter(`Self/Personal Record`== TRUE) %>%
+  mutate(party = ifelse(claimant_party == "Republican", 
+                        "Republican", 
+                        "Democratic")) %>%
+  group_by(party) %>%
+  summarise(`Self/Personal Record` = n())
+
+macro_tibble <- fear_tibble %>%
+  left_join(legis_tibble, by = c("party")) %>%
+   left_join(self_tibble, by = c("party")) %>%
+    left_join(opp_tibble, by = c("party"))
+    
+macro_tibble %>% kable(caption = "Macro Categories by Party")
 ```
 
